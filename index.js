@@ -5,9 +5,13 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 const sqlite = require("sqlite");
-const dbConnection = sqlite.open(path.resolve(__dirname,"banco.sqlite"), { Promise });
+const dbConnection = sqlite.open(path.resolve(__dirname, "banco.sqlite"), {
+  Promise
+});
 
 const port = process.env.PORT || 3000;
+
+app.set("views", path.joing(__dirname, "views"));
 
 app.set("view engine", "ejs");
 
@@ -64,15 +68,15 @@ app.get("/admin/categorias/nova", (req, res) => {
 app.post("/admin/categorias/nova", async (req, res) => {
   const { categoria } = req.body;
   const db = await dbConnection;
-  await db.run(
-    `insert into categorias(categoria) values('${categoria}')`
-  );
+  await db.run(`insert into categorias(categoria) values('${categoria}')`);
   res.redirect("/admin/categorias");
 });
 
 app.get("/admin/categorias/editar/:id", async (req, res) => {
   const db = await dbConnection;
-  const categoria = await db.get("select * from categorias where id = " + req.params.id);
+  const categoria = await db.get(
+    "select * from categorias where id = " + req.params.id
+  );
   res.render("admin/editar-categoria", { categoria });
 });
 
