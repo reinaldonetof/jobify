@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 
+const path = require("path");
+
 const sqlite = require("sqlite");
-const dbConnection = sqlite.open("banco.sqlite", { Promise });
+const dbConnection = sqlite.open(path.resolve(__dirname,"banco.sqlite"), { Promise });
 
 const port = process.env.PORT || 3000;
 
@@ -139,11 +141,6 @@ const init = async () => {
   await db.run(
     "create table if not exists vagas (id INTEGER PRIMARY KEY, categoria INTEGER, titulo TEXT, descricao TEXT);"
   );
-  // const categoria = 'Marketing team'
-  // await db.run(`insert into categorias(categoria) values('${categoria}')`)
-  // const vaga = 'Social Media'
-  // const descricao = 'para mexer no instagram e wahtsapp'
-  // await db.run(`insert into vagas(categoria, titulo, descricao) values(2, '${vaga}', '${descricao}')`)
 };
 
 init();
