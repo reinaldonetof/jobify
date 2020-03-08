@@ -16,7 +16,7 @@ app.use('/admin', (req, res, next) => {
     next()
   } else {
     res.send('<h1>NOT ALLOWED</h1>')
-    console.log(req.hostname)
+    res.send(req.hostname)
   }
 })
 
