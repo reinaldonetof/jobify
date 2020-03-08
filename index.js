@@ -12,11 +12,13 @@ const dbConnection = sqlite.open(path.resolve(__dirname, "banco.sqlite"), {
 const port = process.env.PORT || 3000;
 
 app.use('/admin', (req, res, next) => {
-  if(req.hostname === 'localhost') {
-    next()
+  if (req.hostname === "localhost") {
+    next();
   } else {
-    res.send('<h1>NOT ALLOWED</h1>')
-    res.send(req.hostname)
+    res.send("<h1>NOT ALLOWED</h1>");
+    setTimeout(() => {
+      res.redirect("/");
+    }, 2000);
   }
 })
 
