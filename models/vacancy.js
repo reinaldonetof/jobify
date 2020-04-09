@@ -12,7 +12,29 @@ const getVacancy = dbConnection => async(id) => {
   return vaga
 }
 
+const deleteVacancy = dbConnection => async(id) => {
+  const db = await dbConnection;
+  await db.run("delete from vagas where id = " + id);
+}
+
+const newVacancy = dbConnection => async({titulo, descricao, categoria}) => {
+  const db = await dbConnection;
+  await db.run(
+    `insert into vagas(categoria, titulo, descricao) values(${categoria}, '${titulo}', '${descricao}')`
+  );
+}
+
+const editVacancy = dbConnection => async({titulo, descricao, categoria}, id) => {
+  const db = await dbConnection;
+  await db.run(
+    `update vagas set categoria = ${categoria}, titulo = "${titulo}", descricao = "${descricao}" where id=${id}`
+  );
+}
+
 module.exports ={ 
   getVacancies,
-  getVacancy
+  getVacancy,
+  deleteVacancy,
+  newVacancy,
+  editVacancy
 }

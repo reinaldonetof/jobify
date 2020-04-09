@@ -86,16 +86,14 @@ app.post("/admin/categorias/editar/:id", async (req, res) => {
 
 // // // // // // // // // //
 app.get("/admin/vagas", async (req, res) => {
-  const db = await dbConnection;
-  const vagas = await db.all("select * from vagas;");
+  const vagas = await Vacancy.getVacancies(dbConnection)();
   res.render("admin/vagas", {
     vagas
   });
 });
 
 app.get("/admin/vagas/delete/:id", async (req, res) => {
-  const db = await dbConnection;
-  await db.run("delete from vagas where id = " + req.params.id);
+  await Vacancy.deleteVacancy(dbConnection)(req.params.id)
   res.redirect("/admin/vagas");
 });
 
@@ -106,28 +104,18 @@ app.get("/admin/vagas/nova", async (req, res) => {
 });
 
 app.post("/admin/vagas/nova", async (req, res) => {
-  const { titulo, descricao, categoria } = req.body;
-  const db = await dbConnection;
-  await db.run(
-    `insert into vagas(categoria, titulo, descricao) values(${categoria}, '${titulo}', '${descricao}')`
-  );
+  await Vacancy.newVacancy(dbConnection)(req.body)
   res.redirect("/admin/vagas");
 });
 
 app.get("/admin/vagas/editar/:id", async (req, res) => {
-  const db = await dbConnection;
-  const categorias = await db.all("select * from categorias");
-  const vaga = await db.get("select * from vagas where id = " + req.params.id);
+  const categorias = await Category.getCategories(dbConnection)();
+  const vaga = await Vacancy.getVacancy(dbConnection)(req.params.id)
   res.render("admin/editar-vaga", { categorias, vaga });
 });
 
 app.post("/admin/vagas/editar/:id", async (req, res) => {
-  const { titulo, descricao, categoria } = req.body;
-  const { id } = req.params;
-  const db = await dbConnection;
-  await db.run(
-    `update vagas set categoria = ${categoria}, titulo = "${titulo}", descricao = "${descricao}" where id=${id}`
-  );
+  await Vacancy.editVacancy(dbConnection)(req.body,req.params.id)
   res.redirect("/admin/vagas");
 });
 
