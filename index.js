@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 
-const path = require("path");
+const Category = require("./models/category");
+const Vacancy = require("./models/vacancy");
 
+const path = require("path");
 const sqlite = require("sqlite");
 const dbConnection = sqlite.open(path.resolve(__dirname, "banco.sqlite"), {
   Promise
@@ -27,9 +29,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", async (request, response) => {
-  const db = await dbConnection;
-  const categoriasDb = await db.all("select * from categorias;");
-  const vagas = await db.all("select * from vagas;");
+  const categoriasDb = await Category.getCategories(dbConnection)();
+  const vagas = await Vacancy.getVacancies(dbConnection)();
   const categorias = categoriasDb.map(cat => {
     return {
       ...cat,
@@ -42,10 +43,7 @@ app.get("/", async (request, response) => {
 });
 
 app.get("/vaga/:id", async (request, response) => {
-  const db = await dbConnection;
-  const vaga = await db.get(
-    "select * from vagas where id = " + request.params.id
-  );
+  const vaga = await Vacancy.getVacancy(dbConnection)(req.params.id);
   response.render("vaga", {
     vaga
   });
@@ -56,16 +54,14 @@ app.get("/admin", (req, res) => {
 });
 
 app.get("/admin/categorias", async (req, res) => {
-  const db = await dbConnection;
-  const categorias = await db.all("select * from categorias;");
+  const categorias = await Category.getCategories(dbConnection)();
   res.render("admin/categorias", {
     categorias
   });
 });
 
 app.get("/admin/categorias/delete/:id", async (req, res) => {
-  const db = await dbConnection;
-  await db.run("delete from categorias where id = " + req.params.id);
+  Category.deleteCategory(dbConnection)(req.params.id);
   res.redirect("/admin/categorias");
 });
 
@@ -74,27 +70,17 @@ app.get("/admin/categorias/nova", (req, res) => {
 });
 
 app.post("/admin/categorias/nova", async (req, res) => {
-  const { categoria } = req.body;
-  const db = await dbConnection;
-  await db.run(`insert into categorias(categoria) values('${categoria}')`);
+  await Category.newCategory(dbConnection)(req.body)  
   res.redirect("/admin/categorias");
 });
 
 app.get("/admin/categorias/editar/:id", async (req, res) => {
-  const db = await dbConnection;
-  const categoria = await db.get(
-    "select * from categorias where id = " + req.params.id
-  );
+  const categoria = await Category.getCategory(dbConnection)(req.params.id)
   res.render("admin/editar-categoria", { categoria });
 });
 
 app.post("/admin/categorias/editar/:id", async (req, res) => {
-  const { categoria } = req.body;
-  const { id } = req.params;
-  const db = await dbConnection;
-  await db.run(
-    `update categorias set categoria = '${categoria}' where id=${id}`
-  );
+  await Category.editCategory(dbConnection)(req.body.categoria,req.params.id)
   res.redirect("/admin/categorias");
 });
 
